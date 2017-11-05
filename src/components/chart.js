@@ -25,6 +25,20 @@ const Title = styled.div`
   z-index: 1;
 `
 
+const LiveCheck = styled.div`
+  position: relative;
+  background: #4766a0;
+  color: #dde4ec;
+  font-family: Verdana, Helvetica;
+  text-align: right;
+  font-size: 11.2px;
+  font-weight: lighter;
+  padding-left: 30px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  z-index: 1;
+`
+
 const TimeLine = styled.div`
   background: #758ab4;
   margin-bottom: 10px;
@@ -77,9 +91,40 @@ class Chart extends Component {
     this.state = { 
       clientTime: new Date(),
       live: false
+    }
+    // this.handleLiveSwitch = this.handleLiveSwitch.bind(this)
+  }
 
+  tick = () => {
+    this.setState({ clientTime: new Date() })
+  }
+
+  handleLiveSwitch = () => {
+    const isLive = this.state.live
+    this.setState({ live: !isLive, clientTime: new Date() })
+    this.forceUpdate()
+  }
+
+  componentDidMount = () => {
+    if (this.state.live) {
+      this.interval = setInterval(this.tick, 60000)
     }
   }
+
+  componentDidUpdate = () => {
+    if (this.state.live) {
+      this.interval = setInterval(this.tick, 60000)
+    }
+  }
+
+  componentWillUpdate = () => {
+    clearInterval(this.interval)
+  }
+
+  // shouldComponentUpdate = () => {
+  //   console.log('hi')
+  //   return true
+  // }
 
   getMarginPercent = () => {
     const clientTimeInMinutes = (this.state.clientTime.getHours() * 60) + this.state.clientTime.getMinutes()
@@ -90,6 +135,8 @@ class Chart extends Component {
     }
   }
 
+  
+
   render() {
     return (
       <div className='row'>
@@ -97,7 +144,16 @@ class Chart extends Component {
         <Componentborder className='col-10 col-md-7'>
             <div>
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
-              <Title>Sessions</Title>
+              <div className='container'>
+                <div className='row'>
+                <Title className='col-10 col-xl-11'>Sessions {`${this.state.clientTime.getHours()}:${this.state.clientTime.getMinutes()}`}</Title>
+                  <LiveCheck className='col-2 col-xl-1'>
+                    <input type='checkbox' className='form-check-input' onChange={this.handleLiveSwitch}>
+                    </input>
+                    Live
+                  </LiveCheck>
+                </div>
+              </div>
               <TimeLine>
                 <div className='container'>
                   <div className='row'>
