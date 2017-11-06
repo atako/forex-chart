@@ -1,5 +1,7 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
+const ReactHighcharts = require('react-highcharts')
+// import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
 
 const Componentborder = styled.div`
   background: #f4f6f9;
@@ -25,18 +27,9 @@ const Title = styled.div`
   z-index: 1;
 `
 
-const LiveCheck = styled.div`
-  position: relative;
-  background: #4766a0;
-  color: #dde4ec;
-  font-family: Verdana, Helvetica;
-  text-align: right;
-  font-size: 11.2px;
-  font-weight: lighter;
-  padding-left: 30px;
-  padding-top: 3px;
-  padding-bottom: 3px;
-  z-index: 1;
+const Chartbar = styled.div`
+  padding-right: 0px;
+  padding-left: 0px;
 `
 
 const TimeLine = styled.div`
@@ -63,7 +56,7 @@ const Indicator = styled.div`
   background: #87d687;
   position: absolute;
   height: 100%;
-  z-index: 0;
+  z-index: 1;
   margin-bottom: 100px;
   margin-left: ${ props => props.minutes};
 `
@@ -84,47 +77,103 @@ const Tick = styled.div`
   width: 8.33334%;
 `
 
+const config = {
+  chart: {
+    type: 'column',
+    height: 160,
+    marginLeft: 0,
+    marginRight: 0,
+    marginTop: 13,
+    width: null
+  },
+  plotOptions: {
+    series: {
+      maxPointWidth: 4,
+      minPointInterval: 1
+    },
+    column: {
+      pointPadding: 0,
+      borderWidth: 0,
+    }
+  },
+  credits: {
+    enabled: false
+  },
+  legend: {
+    enabled: false,
+    type: 'category'
+  },
+  xAxis: {
+    crosshair: true,
+    title: {
+      text: null
+    },
+    labels: false,
+    visible: false
+  },
+  yAxis: {
+    labels: {
+      align: 'left',
+      x: 5,
+      y: -3,
+      formatter: function () {
+        if (this.value > 0) {
+          return `+${this.value}%`
+        } else if (this.value === 0) {
+          return '30 Day Avg'
+        }
+        return null
+        // '+{value}%'
+      }
+    },
+    visible: true,
+    title: {
+      text: null
+    },
+    max: 100,
+    min: -100,
+    tickAmount: 5,
+    tickPositions: [-100, -50, 0, 50, 100]
+  },
+  title: {
+    text: null
+  },
+  tooltip: {
+    crosshairs: true,
+    animation: false,
+    // positioner: function () {
+    //   console.log(this.chart.pointer)
+    //   return { x: this.chart.axisOffset, y: 100 };
+    // },
+    followPointer: true,
+    hideDelay: 100,
+    distance: 10,
+    shared: true
+  },
+  series: [{
+    data: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, 0, -5, -14, -22, -33, -50, -60, -77, -65]
+  }]
+}
 
 class Chart extends Component {
   constructor(props) {
     super(props)
     this.state = { 
-      clientTime: new Date(),
-      live: false
+      clientTime: new Date()
     }
-    // this.handleLiveSwitch = this.handleLiveSwitch.bind(this)
   }
 
   tick = () => {
     this.setState({ clientTime: new Date() })
   }
 
-  handleLiveSwitch = () => {
-    const isLive = this.state.live
-    this.setState({ live: !isLive, clientTime: new Date() })
-    this.forceUpdate()
-  }
-
   componentDidMount = () => {
-    if (this.state.live) {
-      this.interval = setInterval(this.tick, 60000)
-    }
+    this.interval = setInterval(this.tick, 600000)
   }
 
-  componentDidUpdate = () => {
-    if (this.state.live) {
-      this.interval = setInterval(this.tick, 60000)
-    }
-  }
-
-  componentWillUpdate = () => {
+  componentWillMount = () => {
     clearInterval(this.interval)
   }
-
-  // shouldComponentUpdate = () => {
-  //   console.log('hi')
-  //   return true
-  // }
 
   getMarginPercent = () => {
     const clientTimeInMinutes = (this.state.clientTime.getHours() * 60) + this.state.clientTime.getMinutes()
@@ -135,8 +184,6 @@ class Chart extends Component {
     }
   }
 
-  
-
   render() {
     return (
       <div className='row'>
@@ -146,12 +193,13 @@ class Chart extends Component {
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
               <div className='container'>
                 <div className='row'>
-                <Title className='col-10 col-xl-11'>Sessions {`${this.state.clientTime.getHours()}:${this.state.clientTime.getMinutes()}`}</Title>
-                  <LiveCheck className='col-2 col-xl-1'>
-                    <input type='checkbox' className='form-check-input' onChange={this.handleLiveSwitch}>
-                    </input>
-                    Live
-                  </LiveCheck>
+                  <Title className='col-12'>Sessions {`${this.state.clientTime.getHours()}:${this.state.clientTime.getMinutes()}`}</Title>
+                </div>
+                <div className='row'>
+                  <Chartbar className='col-12'>
+                  <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
+                    <ReactHighcharts config={config}></ReactHighcharts>
+                  </Chartbar>
                 </div>
               </div>
               <TimeLine>
@@ -191,8 +239,10 @@ class Chart extends Component {
               <Country width='34%' marginleft='40%'>London</Country>
               <Country width='30%' marginleft='70%'>New York</Country>
             </div>
+            
         </Componentborder>
         <div className='col-1 col-md-4'></div>
+        
       </div>
       )
   }
