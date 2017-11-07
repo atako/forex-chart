@@ -81,19 +81,18 @@ const config = {
   chart: {
     type: 'column',
     height: 160,
-    marginLeft: 0,
-    marginRight: 0,
+    marginLeft: -7,
+    marginRight: -7,
     marginTop: 13,
-    width: null
   },
   plotOptions: {
     series: {
-      maxPointWidth: 4,
-      minPointInterval: 1
+      crisp: false,
+      pointPadding: 0,
     },
     column: {
-      pointPadding: 0,
       borderWidth: 0,
+      maxPointWidth: 7
     }
   },
   credits: {
@@ -123,7 +122,6 @@ const config = {
           return '30 Day Avg'
         }
         return null
-        // '+{value}%'
       }
     },
     visible: true,
@@ -141,14 +139,28 @@ const config = {
   tooltip: {
     crosshairs: true,
     animation: false,
-    // positioner: function () {
-    //   console.log(this.chart.pointer)
-    //   return { x: this.chart.axisOffset, y: 100 };
-    // },
+    positioner: function (boxWidth, boxHeight, point) {
+      // console.log(boxWidth, point.plotX, this.chart.plotWidth)
+      if (boxWidth/2 > point.plotX) {
+        return { x: 0, y: 140 }
+      } else if (((boxWidth/2) + 15) + point.plotX > this.chart.plotWidth) {
+        return { x: this.chart.plotWidth - boxWidth - 15, y: 140}
+      }
+      return { x: point.plotX-70, y: 140 };
+    },
     followPointer: true,
-    hideDelay: 100,
+    hideDelay: 50,
     distance: 10,
-    shared: true
+    shared: true,
+    backgroundColor: '#87d687',
+    borderColor: '#87d687',
+    borderRadius: 1,
+    formatter: function () {
+      return 'The value for <b>' + this.x +
+        '</b> is <b>' + this.y + '</b>';
+    },
+    shadow: false,
+    padding: 1
   },
   series: [{
     data: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, 0, -5, -14, -22, -33, -50, -60, -77, -65]
@@ -205,21 +217,21 @@ class Chart extends Component {
               <TimeLine>
                 <div className='container'>
                   <div className='row'>
-                    <TimeLaber className='col'>6pm</TimeLaber>
-                    <TimeLaber className='col'>8pm</TimeLaber>
-                    <TimeLaber className='col'>10pm</TimeLaber>
-                    <TimeLaber className='col'>12am</TimeLaber>
-                    <TimeLaber className='col'>2am</TimeLaber>
-                    <TimeLaber className='col'>4am</TimeLaber>
-                    <TimeLaber className='col'>6am</TimeLaber>
-                    <TimeLaber className='col'>8am</TimeLaber>
-                    <TimeLaber className='col'>10am</TimeLaber>
-                    <TimeLaber className='col'>12pm</TimeLaber>
-                    <TimeLaber className='col'>2pm</TimeLaber>
-                    <TimeLaber className='col'>4pm</TimeLaber>
+                    <TimeLaber className='col-1'>6pm</TimeLaber>
+                    <TimeLaber className='col-1'>8pm</TimeLaber>
+                    <TimeLaber className='col-1'>10pm</TimeLaber>
+                    <TimeLaber className='col-1'>12am</TimeLaber>
+                    <TimeLaber className='col-1'>2am</TimeLaber>
+                    <TimeLaber className='col-1'>4am</TimeLaber>
+                    <TimeLaber className='col-1'>6am</TimeLaber>
+                    <TimeLaber className='col-1'>8am</TimeLaber>
+                    <TimeLaber className='col-1'>10am</TimeLaber>
+                    <TimeLaber className='col-1'>12pm</TimeLaber>
+                    <TimeLaber className='col-1'>2pm</TimeLaber>
+                    <TimeLaber className='col-1'>4pm</TimeLaber>
                   </div>
                   <div className='row'>
-                    <Tick ></Tick>
+                    <Tick />
                     <Tick />
                     <Tick />
                     <Tick />
