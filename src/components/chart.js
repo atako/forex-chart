@@ -1,7 +1,13 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
+import './chart.css' 
 const ReactHighcharts = require('react-highcharts')
 // import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
+
+var beingTime = Date.UTC(2017, 10, 7, 17, 0, 0, 0)
+// var beingTime = Date.now()
+// beingTime.setHours(17)
+// beingTime.setMinutes(0)
 
 const Componentborder = styled.div`
   background: #f4f6f9;
@@ -89,6 +95,8 @@ const config = {
     series: {
       crisp: false,
       pointPadding: 0,
+      pointStart: beingTime,
+      pointInterval: 600000
     },
     column: {
       borderWidth: 0,
@@ -108,7 +116,9 @@ const config = {
       text: null
     },
     labels: false,
-    visible: false
+    visible: false,
+    type: 'datetime'
+    // categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   },
   yAxis: {
     labels: {
@@ -140,13 +150,12 @@ const config = {
     crosshairs: true,
     animation: false,
     positioner: function (boxWidth, boxHeight, point) {
-      // console.log(boxWidth, point.plotX, this.chart.plotWidth)
-      if (boxWidth/2 > point.plotX) {
+      if ((boxWidth/2)+10 > point.plotX) {
         return { x: 0, y: 140 }
       } else if (((boxWidth/2) + 15) + point.plotX > this.chart.plotWidth) {
         return { x: this.chart.plotWidth - boxWidth - 15, y: 140}
       }
-      return { x: point.plotX-70, y: 140 };
+      return { x: point.plotX-(boxWidth+15)/2, y: 140 };
     },
     followPointer: true,
     hideDelay: 50,
@@ -155,15 +164,23 @@ const config = {
     backgroundColor: '#87d687',
     borderColor: '#87d687',
     borderRadius: 1,
+    xDateFormat: '%Y-%m-%d',
     formatter: function () {
-      return 'The value for <b>' + this.x +
-        '</b> is <b>' + this.y + '</b>';
+      const d = new Date(this.x)
+      if (this.y === 0 ) {
+        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + '= Avg'
+      } else if (this.y > 0) {
+        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + this.y+'% > Avg'
+      } else if (this.y < 0) {
+        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + Math.abs(this.y) + '% < Avg'
+      }
+      
     },
     shadow: false,
     padding: 1
   },
   series: [{
-    data: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, 0, -5, -14, -22, -33, -50, -60, -77, -65]
+    data: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
   }]
 }
 

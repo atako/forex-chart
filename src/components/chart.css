@@ -1,0 +1,7 @@
+.highcharts-container {
+  position: inherit !important;
+}
+
+.highcharts-tooltip {
+  z-index: 9998;
+}
