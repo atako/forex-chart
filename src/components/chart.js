@@ -1,13 +1,12 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import './chart.css' 
+import moment from 'moment'
+import momentzone from 'moment-timezone'
 const ReactHighcharts = require('react-highcharts')
 // import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
 
-var beingTime = Date.UTC(2017, 10, 7, 17, 0, 0, 0)
-// var beingTime = Date.now()
-// beingTime.setHours(17)
-// beingTime.setMinutes(0)
+const beginTimeOnChart = Date.UTC(2017, 10, 7, 22, 0, 0, 0)
 
 const Componentborder = styled.div`
   background: #f4f6f9;
@@ -95,7 +94,7 @@ const config = {
     series: {
       crisp: false,
       pointPadding: 0,
-      pointStart: beingTime,
+      pointStart: beginTimeOnChart,
       pointInterval: 600000
     },
     column: {
@@ -168,11 +167,11 @@ const config = {
     formatter: function () {
       const d = new Date(this.x)
       if (this.y === 0 ) {
-        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + '= Avg'
+        return moment(d).utc().format('h:mm a') + ' | ' + '= Avg'
       } else if (this.y > 0) {
-        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + this.y+'% > Avg'
+        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg'
       } else if (this.y < 0) {
-        return d.getUTCHours() + ':' + d.getUTCMinutes() + ' | ' + Math.abs(this.y) + '% < Avg'
+        return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
       }
       
     },
@@ -205,11 +204,11 @@ class Chart extends Component {
   }
 
   getMarginPercent = () => {
-    const clientTimeInMinutes = (this.state.clientTime.getHours() * 60) + this.state.clientTime.getMinutes()
-    if ( clientTimeInMinutes >= 1020 && clientTimeInMinutes <= 1439) {
-      return (clientTimeInMinutes - 1019) * 0.0694445
+    const currentUTCTimeInMinutes = (this.state.clientTime.getUTCHours() * 60) + this.state.clientTime.getUTCMinutes()
+    if ( currentUTCTimeInMinutes >= 1320 && currentUTCTimeInMinutes <= 1439) {
+      return (currentUTCTimeInMinutes - 1319) * 0.0694445
     } else {
-      return (clientTimeInMinutes + 420) * 0.0694445
+      return (currentUTCTimeInMinutes + 120) * 0.0694445
     }
   }
 
@@ -222,7 +221,7 @@ class Chart extends Component {
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
               <div className='container'>
                 <div className='row'>
-                  <Title className='col-12'>Sessions {`${this.state.clientTime.getHours()}:${this.state.clientTime.getMinutes()}`}</Title>
+                  <Title className='col-12'>Sessions {`${this.state.clientTime.getUTCHours()}:${this.state.clientTime.getUTCMinutes()}`}</Title>
                 </div>
                 <div className='row'>
                   <Chartbar className='col-12'>
@@ -234,18 +233,18 @@ class Chart extends Component {
               <TimeLine>
                 <div className='container'>
                   <div className='row'>
-                    <TimeLaber className='col-1'>6pm</TimeLaber>
-                    <TimeLaber className='col-1'>8pm</TimeLaber>
-                    <TimeLaber className='col-1'>10pm</TimeLaber>
-                    <TimeLaber className='col-1'>12am</TimeLaber>
-                    <TimeLaber className='col-1'>2am</TimeLaber>
-                    <TimeLaber className='col-1'>4am</TimeLaber>
-                    <TimeLaber className='col-1'>6am</TimeLaber>
-                    <TimeLaber className='col-1'>8am</TimeLaber>
-                    <TimeLaber className='col-1'>10am</TimeLaber>
-                    <TimeLaber className='col-1'>12pm</TimeLaber>
-                    <TimeLaber className='col-1'>2pm</TimeLaber>
-                    <TimeLaber className='col-1'>4pm</TimeLaber>
+                    <TimeLaber className='col-1'>11pm</TimeLaber>
+                    <TimeLaber className='col-1'>1am</TimeLaber>
+                    <TimeLaber className='col-1'>3am</TimeLaber>
+                    <TimeLaber className='col-1'>5am</TimeLaber>
+                    <TimeLaber className='col-1'>7am</TimeLaber>
+                    <TimeLaber className='col-1'>9am</TimeLaber>
+                    <TimeLaber className='col-1'>11am</TimeLaber>
+                    <TimeLaber className='col-1'>1pm</TimeLaber>
+                    <TimeLaber className='col-1'>3pm</TimeLaber>
+                    <TimeLaber className='col-1'>5pm</TimeLaber>
+                    <TimeLaber className='col-1'>7pm</TimeLaber>
+                    <TimeLaber className='col-1'>9pm</TimeLaber>
                   </div>
                   <div className='row'>
                     <Tick />
@@ -263,10 +262,11 @@ class Chart extends Component {
                   </div>
                 </div>
               </TimeLine>
-              <Country width='34%'>Sydney</Country>
-              <Country width='34%' marginleft='10%'>Tokyo</Country>
-              <Country width='34%' marginleft='40%'>London</Country>
-              <Country width='30%' marginleft='70%'>New York</Country>
+              <Country width='34%'>Sydney {momentzone(moment().utc()).tz("Australia/Sydney").format('LT')}</Country> 
+              
+              <Country width='34%' marginleft='10%'>Tokyo {momentzone(moment().utc()).tz("Asia/Tokyo").format('LT')}</Country>
+              <Country width='34%' marginleft='40%'>London {momentzone(moment().utc()).tz("Europe/London").format('LT')}</Country>
+              <Country width='30%' marginleft='70%'>New York {momentzone(moment().utc()).tz("America/New_York").format('LT')}</Country>
             </div>
             
         </Componentborder>
