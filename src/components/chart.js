@@ -7,6 +7,7 @@ const ReactHighcharts = require('react-highcharts')
 // import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
 
 const beginTimeOnChart = Date.UTC(2017, 10, 7, 22, 0, 0, 0)
+const chartData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
 
 const Componentborder = styled.div`
   background: #f4f6f9;
@@ -82,6 +83,21 @@ const Tick = styled.div`
   width: 8.33334%;
 `
 
+const LiquidityTitle = styled.div`
+  cursor: pointer;
+  background: ${props => props.open ? '#87d687' : '#4766a0'};
+  color: ${props => props.open ? '#ffffff' : '#dde4ec'};
+  font-family: Verdana, Helvetica;
+  text-align: left;
+  font-size: 11.2px;
+  font-weight: normal;
+  padding-left: 15px;
+  padding-right: 5px;
+  padding-top: 3px;
+  padding-bottom: 3px;
+  z-index: 1;
+`
+
 const config = {
   chart: {
     type: 'column',
@@ -117,12 +133,11 @@ const config = {
     labels: false,
     visible: false,
     type: 'datetime'
-    // categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
   },
   yAxis: {
     labels: {
       align: 'left',
-      x: 5,
+      x: 8,
       y: -3,
       formatter: function () {
         if (this.value > 0) {
@@ -179,7 +194,7 @@ const config = {
     padding: 1
   },
   series: [{
-    data: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+    data: chartData
   }]
 }
 
@@ -187,12 +202,14 @@ class Chart extends Component {
   constructor(props) {
     super(props)
     this.state = { 
-      clientTime: new Date()
+      clientTime: new Date(),
+      showChart: false,
+      chartData: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
     }
   }
 
   tick = () => {
-    this.setState({ clientTime: new Date() })
+    this.setState({ clientTime: moment() })
   }
 
   componentDidMount = () => {
@@ -212,6 +229,14 @@ class Chart extends Component {
     }
   }
 
+  getCurrentValueOfLiquidity = () => {
+    const currentIndex = Math.floor(((this.state.clientTime.getUTCHours() * 60) + this.state.clientTime.getUTCMinutes()) / 10) + 12
+    return this.state.chartData[currentIndex]
+  }
+
+  displayChart = () => {
+    this.setState({ showChart: !this.state.showChart })
+  }
   render() {
     return (
       <div className='row'>
@@ -221,12 +246,14 @@ class Chart extends Component {
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
               <div className='container'>
                 <div className='row'>
-                  <Title className='col-12'>Sessions {`${this.state.clientTime.getUTCHours()}:${this.state.clientTime.getUTCMinutes()}`}</Title>
+                <Title className='col'>Sessions | Current UTC Time:  {moment().utc().format('LT')}</Title>
+                <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}>Liquidity: {this.getCurrentValueOfLiquidity()}{this.getCurrentValueOfLiquidity() >= 0 ? '% > ' : ' %< '}Avg</LiquidityTitle>
+                <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}> {this.state.showChart ? <i className="icon-collapse-top"></i> : <i className="icon-collapse"></i>} </LiquidityTitle>
                 </div>
-                <div className='row'>
-                  <Chartbar className='col-12'>
+                <div className='row' style={{display: this.state.showChart ? 'block' : 'none'}}>
+                <Chartbar className='col-12'>
                   <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
-                    <ReactHighcharts config={config}></ReactHighcharts>
+                    <ReactHighcharts config={config} data={this.state.chartData}></ReactHighcharts>
                   </Chartbar>
                 </div>
               </div>
@@ -263,7 +290,6 @@ class Chart extends Component {
                 </div>
               </TimeLine>
               <Country width='34%'>Sydney {momentzone(moment().utc()).tz("Australia/Sydney").format('LT')}</Country> 
-              
               <Country width='34%' marginleft='10%'>Tokyo {momentzone(moment().utc()).tz("Asia/Tokyo").format('LT')}</Country>
               <Country width='34%' marginleft='40%'>London {momentzone(moment().utc()).tz("Europe/London").format('LT')}</Country>
               <Country width='30%' marginleft='70%'>New York {momentzone(moment().utc()).tz("America/New_York").format('LT')}</Country>
