@@ -3,6 +3,7 @@ import styled from 'styled-components'
 import './chart.css' 
 import moment from 'moment'
 import momentzone from 'moment-timezone'
+import cityes from './cityes.json'
 const ReactHighcharts = require('react-highcharts')
 // import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
 
@@ -48,7 +49,7 @@ const Country = styled.div`
   height: 17px;
   border: 1px solid #bfc8db;
   margin-top: 3px;
-  background: #d5d9e2;
+  background: ${props => props.active ? '#87d687' : '#d5d9e2'};
   font-family: Verdana, Helvetica, sans-serif;
   font-size: 11.2px;
   font-weight: bold;
@@ -182,7 +183,7 @@ const config = {
     formatter: function () {
       const d = new Date(this.x)
       if (this.y === 0 ) {
-        return moment(d).utc().format('h:mm a') + ' | ' + '= Avg'
+        return moment(d).utc().format('h:mm a') + ' | = Avg'
       } else if (this.y > 0) {
         return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg'
       } else if (this.y < 0) {
@@ -204,12 +205,12 @@ class Chart extends Component {
     this.state = { 
       clientTime: new Date(),
       showChart: false,
-      chartData: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+      chartData: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65],
     }
   }
 
   tick = () => {
-    this.setState({ clientTime: moment() })
+    this.setState({ clientTime: new Date() })
   }
 
   componentDidMount = () => {
@@ -237,6 +238,35 @@ class Chart extends Component {
   displayChart = () => {
     this.setState({ showChart: !this.state.showChart })
   }
+
+  getActiveCity = (city) => {
+    const startTime = moment.utc(city.startTime, 'h:m A')
+    const finishTime = moment(startTime).add(city.tradingDuration, 'hour')
+    const currentTime = moment().utc()
+    const midnight = moment('0:00 AM', 'h:m A').utc()
+    const difference = moment(midnight).diff(startTime, 'minutes')
+    console.log(moment(startTime).utc().format('DD h:m A'))
+    console.log(moment(finishTime).utc().format('DD h:m A'))
+    console.log(currentTime.format('DD h:m A'))
+    if (Math.abs(difference) > 1440) {
+      startTime.subtract(1, 'days').format('DD h:m A')
+      finishTime.subtract(1, 'days').format('DD h:m A')
+    }
+    console.log('------------')
+    return (moment(currentTime).isBetween(startTime.utc(), finishTime.utc()))
+    // console.log(moment().utc().add(8, 'hour'))
+    // console.log(momentzone(moment().utc()).tz(city.timezone))
+    // console.log(moment().utc().isBetween(moment().utc(), (momentzone(moment().utc()).tz(city.timezone))))
+  }
+
+  calculateCityMargin = (city) => {
+    const startTime = moment(city.startTime, 'h:m A')
+    const midnight = moment('0:00 AM', 'h:m A')
+    const difference = moment(midnight).diff(startTime, 'minutes')
+    return (difference < -1319 ? `${((Math.abs(difference) - 1320) * 0.0694445)}%` : `${((Math.abs(difference) + 120) * 0.0694445)}%`)
+  }
+
+
   render() {
     return (
       <div className='row'>
@@ -246,8 +276,8 @@ class Chart extends Component {
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
               <div className='container'>
                 <div className='row'>
-                <Title className='col'>Sessions | Current UTC Time:  {moment().utc().format('LT')}</Title>
-                <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}>Liquidity: {this.getCurrentValueOfLiquidity()}{this.getCurrentValueOfLiquidity() >= 0 ? '% > ' : ' %< '}Avg</LiquidityTitle>
+                <Title className='col'>Sessions | {moment().utc().format('LT')}</Title>
+                <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}>Liquidity: {Math.abs(this.getCurrentValueOfLiquidity())}{this.getCurrentValueOfLiquidity() >= 0 ? '% > ' : '% < '}Avg</LiquidityTitle>
                 <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}> {this.state.showChart ? <i className="icon-collapse-top"></i> : <i className="icon-collapse"></i>} </LiquidityTitle>
                 </div>
                 <div className='row' style={{display: this.state.showChart ? 'block' : 'none'}}>
@@ -289,12 +319,12 @@ class Chart extends Component {
                   </div>
                 </div>
               </TimeLine>
-              <Country width='34%'>Sydney {momentzone(moment().utc()).tz("Australia/Sydney").format('LT')}</Country> 
-              <Country width='34%' marginleft='10%'>Tokyo {momentzone(moment().utc()).tz("Asia/Tokyo").format('LT')}</Country>
-              <Country width='34%' marginleft='40%'>London {momentzone(moment().utc()).tz("Europe/London").format('LT')}</Country>
-              <Country width='30%' marginleft='70%'>New York {momentzone(moment().utc()).tz("America/New_York").format('LT')}</Country>
+            {/* {`${(600 - (momentzone(moment().utc()).tz(e.timezone).utcOffset())) * 0.0694445}%`}  */}
+                {cityes.cityes.map((e) => {
+                  return <Country key={e.name} active={this.getActiveCity(e)} width={`${e.tradingDuration * 4.16667}%`} marginleft={this.calculateCityMargin(e)}>{e.name} {momentzone(moment().utc()).tz(e.timezone).format('LT')}</Country>
+                  })
+                }
             </div>
-            
         </Componentborder>
         <div className='col-1 col-md-4'></div>
         

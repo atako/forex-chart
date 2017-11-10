@@ -1,0 +1,28 @@
+{
+  "cityes": [
+    {
+      "name":"Sydney",
+      "timezone":"Australia/Sydney",
+      "tradingDuration":"9",
+      "startTime":"10:00PM"
+    },
+    {
+      "name":"Tokyo",
+      "timezone":"Asia/Tokyo",
+      "tradingDuration":"9",
+      "startTime":"0:00AM"
+    },
+    {
+      "name":"London",
+      "timezone":"Europe/London",
+      "tradingDuration":"9",
+      "startTime":"8:00AM"
+    },
+    {
+      "name":"New York",
+      "timezone": "America/New_York",
+      "tradingDuration": "9",
+      "startTime":"1:00PM"
+    }
+  ]
+}
