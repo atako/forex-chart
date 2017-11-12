@@ -3,9 +3,13 @@ import styled from 'styled-components'
 import './chart.css' 
 import moment from 'moment'
 import momentzone from 'moment-timezone'
+import ReactTooltip from 'react-tooltip'
+// import ReactHintFactory from 'react-hint'
+
+// import { Manager, Target, Popper, Arrow } from 'react-popper'
 import cityes from './cityes.json'
+
 const ReactHighcharts = require('react-highcharts')
-// import { BarChart, Bar, ReferenceLine, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Label } from 'recharts'
 
 const beginTimeOnChart = Date.UTC(2017, 10, 7, 22, 0, 0, 0)
 const chartData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
@@ -214,7 +218,7 @@ class Chart extends Component {
   }
 
   componentDidMount = () => {
-    this.interval = setInterval(this.tick, 600000)
+    this.interval = setInterval(this.tick, 60000)
   }
 
   componentWillMount = () => {
@@ -241,31 +245,33 @@ class Chart extends Component {
 
   getActiveCity = (city) => {
     const startTime = moment.utc(city.startTime, 'h:m A')
+    if (startTime.day() === 6 || startTime.day() === 0) {
+      return false
+    }
     const finishTime = moment(startTime).add(city.tradingDuration, 'hour')
     const currentTime = moment().utc()
     const midnight = moment('0:00 AM', 'h:m A').utc()
     const difference = moment(midnight).diff(startTime, 'minutes')
-    console.log(moment(startTime).utc().format('DD h:m A'))
-    console.log(moment(finishTime).utc().format('DD h:m A'))
-    console.log(currentTime.format('DD h:m A'))
     if (Math.abs(difference) > 1440) {
       startTime.subtract(1, 'days').format('DD h:m A')
       finishTime.subtract(1, 'days').format('DD h:m A')
     }
-    console.log('------------')
     return (moment(currentTime).isBetween(startTime.utc(), finishTime.utc()))
-    // console.log(moment().utc().add(8, 'hour'))
-    // console.log(momentzone(moment().utc()).tz(city.timezone))
-    // console.log(moment().utc().isBetween(moment().utc(), (momentzone(moment().utc()).tz(city.timezone))))
   }
 
   calculateCityMargin = (city) => {
     const startTime = moment(city.startTime, 'h:m A')
     const midnight = moment('0:00 AM', 'h:m A')
     const difference = moment(midnight).diff(startTime, 'minutes')
-    return (difference < -1319 ? `${((Math.abs(difference) - 1320) * 0.0694445)}%` : `${((Math.abs(difference) + 120) * 0.0694445)}%`)
+    return (difference < -1319 ? ((Math.abs(difference) - 1320) * 0.0694445) : ((Math.abs(difference) + 120) * 0.0694445))
   }
 
+  getTimeDifference = (e) => {
+    const startTime = moment(e.startTime, 'h:m A').add(1,'days')
+    const currentTime = moment().utc().format("dddd, MMMM Do YYYY, h:mm:ss a")
+    const tempTime = moment.duration(Math.abs(moment(startTime.utc()).diff(moment(currentTime, "dddd, MMMM Do YYYY, h:mm:ss a"))))
+    return (`${tempTime.hours()} hr ${tempTime.minutes()} min`)
+  }
 
   render() {
     return (
@@ -276,7 +282,7 @@ class Chart extends Component {
             <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
               <div className='container'>
                 <div className='row'>
-                <Title className='col'>Sessions | {moment().utc().format('LT')}</Title>
+                <Title className='col'>Sessions | {moment(this.state.clientTime).utc().format('LT')}</Title>
                 <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}>Liquidity: {Math.abs(this.getCurrentValueOfLiquidity())}{this.getCurrentValueOfLiquidity() >= 0 ? '% > ' : '% < '}Avg</LiquidityTitle>
                 <LiquidityTitle onClick={this.displayChart} open={this.state.showChart}> {this.state.showChart ? <i className="icon-collapse-top"></i> : <i className="icon-collapse"></i>} </LiquidityTitle>
                 </div>
@@ -319,15 +325,33 @@ class Chart extends Component {
                   </div>
                 </div>
               </TimeLine>
-            {/* {`${(600 - (momentzone(moment().utc()).tz(e.timezone).utcOffset())) * 0.0694445}%`}  */}
+            
                 {cityes.cityes.map((e) => {
-                  return <Country key={e.name} active={this.getActiveCity(e)} width={`${e.tradingDuration * 4.16667}%`} marginleft={this.calculateCityMargin(e)}>{e.name} {momentzone(moment().utc()).tz(e.timezone).format('LT')}</Country>
-                  })
-                }
+                  return <div key={e.name}className='container'>
+                          <div key={e.name} className='row'>
+                            <Country
+                              data-tip={`Begins in ${this.getTimeDifference(e)} (${e.startTime} at your time)`}
+                              data-place={this.getMarginPercent > 35 ? 'right' : 'left'}
+                              key={e.name} 
+                              active={this.getActiveCity(e)} 
+                              width={`${e.tradingDuration * 4.16667}%`} 
+                              marginleft={`${this.calculateCityMargin(e)}%`}
+                              >
+                              {e.name} {momentzone(moment().utc()).tz(e.timezone).format('LT')}
+                            </Country>
+                            
+                            </div>
+                          </div>
+                          })
+                    }
             </div>
+          <ReactTooltip
+            type='light'
+            class='customeTheme'
+            effect='solid'
+          />
         </Componentborder>
         <div className='col-1 col-md-4'></div>
-        
       </div>
       )
   }

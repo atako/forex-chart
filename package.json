@@ -9,7 +9,11 @@
     "react": "^16.0.0",
     "react-dom": "^16.0.0",
     "react-highcharts": "^13.0.0",
-    "react-scripts": "1.0.17"
+    "react-hint": "^3.0.0",
+    "react-lightweight-tooltip": "0.0.4",
+    "react-popper": "^0.7.4",
+    "react-scripts": "1.0.17",
+    "react-tooltip": "^3.4.0"
   },
   "scripts": {
     "start": "react-scripts start",
