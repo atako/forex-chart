@@ -15,6 +15,28 @@
   font-family: Verdana,Helvetica,sans-serif !important;
   font-size: 11.2px !important;
   opacity: 1 !important;
+  height: 17px !important;
+  margin-left: 1px !important;
+  /* ::place-left:after {
+    border-left-color: orange !important;
+    border-left-style: solid !important;
+    border-left-width: 6px !important;
+  } */
+}
+
+.activeTheme {
+  color: black !important;
+  background-color: white !important;
+  border: 1px solid #87d687 !important;
+  padding: 0px 5px 0px !important;
+  border-radius: 0px !important;
+  font-family: Verdana, Helvetica, sans-serif !important;
+  font-size: 11.2px !important;
+  opacity: 1 !important;
+  height: 17px !important;
+  margin-left: 0px !important;
+  margin-right: 0px !important;
+  margin-top: -1px !important;
   /* ::place-left:after {
     border-left-color: orange !important;
     border-left-style: solid !important;

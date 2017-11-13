@@ -51,9 +51,10 @@ const TimeLine = styled.div`
 const Country = styled.div`
   position: relative;
   height: 17px;
-  border: 1px solid #bfc8db;
+  border: ${props => props.active ? 'none' : '1px solid #bfc8db'};
   margin-top: 3px;
   background: ${props => props.active ? '#87d687' : '#d5d9e2'};
+  color: ${props => props.active ? '#fff' : '#3E4B5B'};
   font-family: Verdana, Helvetica, sans-serif;
   font-size: 11.2px;
   font-weight: bold;
@@ -70,6 +71,7 @@ const Indicator = styled.div`
   z-index: 1;
   margin-bottom: 100px;
   margin-left: ${ props => props.minutes};
+  opacity: 0.8;
 `
 
 const TimeLaber = styled.div`
@@ -86,6 +88,12 @@ const Tick = styled.div`
   border-right: ${props => props.last ? '0px' : '1px solid #dde4ec' };
   height: 4px;
   width: 8.33334%;
+`
+
+const Halftick = styled.div`
+  border-right: ${props => props.last ? '0px' : '1px solid #dde4ec'};
+  height: 4px;
+  width: 50%;
 `
 
 const LiquidityTitle = styled.div`
@@ -187,9 +195,9 @@ const config = {
     formatter: function () {
       const d = new Date(this.x)
       if (this.y === 0 ) {
-        return moment(d).utc().format('h:mm a') + ' | = Avg'
+        return (<div>{moment(d).utc().format('h:mm a') + ' | = Avg'}</div>)
       } else if (this.y > 0) {
-        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg'
+        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg fadf'
       } else if (this.y < 0) {
         return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
       }
@@ -268,9 +276,16 @@ class Chart extends Component {
 
   getTimeDifference = (e) => {
     const startTime = moment(e.startTime, 'h:m A').add(1,'days')
-    const currentTime = moment().utc().format("dddd, MMMM Do YYYY, h:mm:ss a")
-    const tempTime = moment.duration(Math.abs(moment(startTime.utc()).diff(moment(currentTime, "dddd, MMMM Do YYYY, h:mm:ss a"))))
-    return (`${tempTime.hours()} hr ${tempTime.minutes()} min`)
+    const currentTimeAsString = moment().utc().format("dddd, MMMM Do YYYY, h:mm:ss a")
+    const timeToBegin = moment.duration(Math.abs(moment(startTime.utc()).diff(moment(currentTimeAsString, "dddd, MMMM Do YYYY, h:mm:ss a"))))
+    if (!this.getActiveCity(e)) {
+      return (`Begins in ${timeToBegin.hours()}hr ${timeToBegin.minutes()+1}min (${e.startTime} at your time)`)
+    } else {
+      const finishTime = moment(e.startTime, 'h:m A').add(e.tradingDuration, 'hours')
+      const timeToEnd = moment.duration(Math.abs(moment(finishTime).diff(moment(currentTimeAsString, "dddd, MMMM Do YYYY, h:mm:ss a"))))
+      return (`Ends in ${timeToEnd.hours()}hr ${timeToEnd.minutes()+1}min (${moment(finishTime).format('h:mm A')} at your time)`)
+    }
+    
   }
 
   render() {
@@ -310,36 +325,35 @@ class Chart extends Component {
                     <TimeLaber className='col-1'>9pm</TimeLaber>
                   </div>
                   <div className='row'>
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick />
-                    <Tick last/>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick><Halftick /></Tick>
+                    <Tick last><Halftick /></Tick>
                   </div>
                 </div>
               </TimeLine>
-            
                 {cityes.cityes.map((e) => {
                   return <div key={e.name}className='container'>
                           <div key={e.name} className='row'>
                             <Country
-                              data-tip={`Begins in ${this.getTimeDifference(e)} (${e.startTime} at your time)`}
+                              data-tip={this.getTimeDifference(e)}
                               data-place={this.getMarginPercent > 35 ? 'right' : 'left'}
+                              data-class={this.getActiveCity(e) ? 'activeTheme' : 'customeTheme'}
                               key={e.name} 
                               active={this.getActiveCity(e)} 
                               width={`${e.tradingDuration * 4.16667}%`} 
                               marginleft={`${this.calculateCityMargin(e)}%`}
                               >
-                              {e.name} {momentzone(moment().utc()).tz(e.timezone).format('LT')}
+                              {e.name} <span style={{fontWeight:'normal'}}>{momentzone(moment().utc()).tz(e.timezone).format('LT')}</span>
                             </Country>
-                            
                             </div>
                           </div>
                           })
