@@ -12,7 +12,30 @@ import cityes from './cityes.json'
 const ReactHighcharts = require('react-highcharts')
 
 const beginTimeOnChart = Date.UTC(2017, 10, 7, 22, 0, 0, 0)
-const chartData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+
+const getCurrentIndex = () => {
+  const currentDate = new Date()
+  const currentUTCTimeInMinutes = (currentDate.getUTCHours() * 60) + currentDate.getUTCMinutes()
+  if (currentUTCTimeInMinutes >= 1320 && currentUTCTimeInMinutes <= 1439) {
+    return((currentUTCTimeInMinutes - 1319) / 10)
+  } else {
+    return(Math.round((currentUTCTimeInMinutes + 120) / 10))
+  }
+}
+
+const getChartData = () => {
+  const initData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+  const processedData = []
+  
+  initData.map((value, index) => {
+    if (index < getCurrentIndex()) {
+      processedData.push({ y: value, color: '#2874cd'})
+    } else {
+      processedData.push({ y: value, color: '#acacac' })
+    }
+  })
+  return processedData
+} 
 
 const Componentborder = styled.div`
   background: #f4f6f9;
@@ -110,7 +133,10 @@ const LiquidityTitle = styled.div`
   padding-bottom: 3px;
   z-index: 1;
 `
-
+const GraphIndicator = styled.div`
+  !font-weight: bold;
+  color: white;
+`
 const config = {
   chart: {
     type: 'column',
@@ -195,9 +221,9 @@ const config = {
     formatter: function () {
       const d = new Date(this.x)
       if (this.y === 0 ) {
-        return (<div>{moment(d).utc().format('h:mm a') + ' | = Avg'}</div>)
+        return '<GraphIndicator>' + moment(d).utc().format('h:mm a') + ' | = Avg' + '</GraphIndicator>'
       } else if (this.y > 0) {
-        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg fadf'
+        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg'
       } else if (this.y < 0) {
         return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
       }
@@ -207,7 +233,7 @@ const config = {
     padding: 1
   },
   series: [{
-    data: chartData
+    data: getChartData()
   }]
 }
 
@@ -231,6 +257,133 @@ class Chart extends Component {
 
   componentWillMount = () => {
     clearInterval(this.interval)
+  }
+
+   getCurrentIndex = () => {
+    const currentDate = new Date()
+    const currentUTCTimeInMinutes = (currentDate.getUTCHours() * 60) + currentDate.getUTCMinutes()
+    if (currentUTCTimeInMinutes >= 1320 && currentUTCTimeInMinutes <= 1439) {
+      return ((currentUTCTimeInMinutes - 1319) / 10)
+    } else {
+      return (Math.round((currentUTCTimeInMinutes + 120) / 10))
+    }
+  }
+
+   getChartData = () => {
+    const initData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+    const processedData = []
+
+    initData.map((value, index) => {
+      if (index < this.getCurrentIndex()) {
+        processedData.push({ y: value, color: '#2874cd' })
+      } else {
+        processedData.push({ y: value, color: '#acacac' })
+      }
+    })
+    return processedData
+  } 
+
+  getConfig = () => {
+   return {
+      chart: {
+      type: 'column',
+      height: 160,
+      marginLeft: -7,
+      marginRight: -7,
+      marginTop: 13,
+    },
+    plotOptions: {
+      series: {
+        crisp: false,
+        pointPadding: 0,
+        pointStart: beginTimeOnChart,
+        pointInterval: 600000
+      },
+      column: {
+        borderWidth: 0,
+        maxPointWidth: 7
+      }
+    },
+    credits: {
+      enabled: false
+    },
+    legend: {
+      enabled: false,
+      type: 'category'
+    },
+    xAxis: {
+      crosshair: true,
+      title: {
+        text: null
+      },
+      labels: false,
+      visible: false,
+      type: 'datetime'
+    },
+    yAxis: {
+      labels: {
+        align: 'left',
+        x: 8,
+        y: -3,
+        formatter: function () {
+          if (this.value > 0) {
+            return `+${this.value}%`
+          } else if (this.value === 0) {
+            return '30 Day Avg'
+          }
+          return null
+        }
+      },
+      visible: true,
+      title: {
+        text: null
+      },
+      max: 100,
+      min: -100,
+      tickAmount: 5,
+      tickPositions: [-100, -50, 0, 50, 100]
+    },
+    title: {
+      text: null
+    },
+    tooltip: {
+      crosshairs: true,
+      animation: false,
+      positioner: function (boxWidth, boxHeight, point) {
+        if ((boxWidth / 2) + 10 > point.plotX) {
+          return { x: 0, y: 140 }
+        } else if (((boxWidth / 2) + 15) + point.plotX > this.chart.plotWidth) {
+          return { x: this.chart.plotWidth - boxWidth - 15, y: 140 }
+        }
+        return { x: point.plotX - (boxWidth + 15) / 2, y: 140 };
+      },
+      followPointer: true,
+      hideDelay: 50,
+      distance: 10,
+      shared: true,
+      backgroundColor: '#87d687',
+      borderColor: '#87d687',
+      borderRadius: 1,
+      xDateFormat: '%Y-%m-%d',
+      formatter: function () {
+        const d = new Date(this.x)
+        if (this.y === 0) {
+          return '<GraphIndicator>' + moment(d).utc().format('h:mm a') + ' | = Avg' + '</GraphIndicator>'
+        } else if (this.y > 0) {
+          return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% > Avg'
+        } else if (this.y < 0) {
+          return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
+        }
+
+      },
+      shadow: false,
+      padding: 1
+    },
+    series: [{
+      data: getChartData()
+    }]
+    }
+    
   }
 
   getMarginPercent = () => {
@@ -304,7 +457,7 @@ class Chart extends Component {
                 <div className='row' style={{display: this.state.showChart ? 'block' : 'none'}}>
                 <Chartbar className='col-12'>
                   <Indicator minutes={`${this.getMarginPercent()}%`}></Indicator>
-                    <ReactHighcharts config={config} data={this.state.chartData}></ReactHighcharts>
+                    <ReactHighcharts config={this.getConfig()}></ReactHighcharts>
                   </Chartbar>
                 </div>
               </div>
