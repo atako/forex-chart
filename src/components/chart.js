@@ -351,9 +351,9 @@ class Chart extends Component {
       animation: false,
       positioner: function (boxWidth, boxHeight, point) {
         if ((boxWidth / 2) + 10 > point.plotX) {
-          return { x: 0, y: 140 }
+          return { x: -5, y: 140 }
         } else if (((boxWidth / 2) + 15) + point.plotX > this.chart.plotWidth) {
-          return { x: this.chart.plotWidth - boxWidth - 15, y: 140 }
+          return { x: this.chart.plotWidth - boxWidth - 9, y: 140 }
         }
         return { x: point.plotX - (boxWidth + 15) / 2, y: 140 };
       },

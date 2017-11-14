@@ -59,7 +59,6 @@
   
   
   .highcharts-tooltip>span {
-    /* background: #87d687; */
     padding-left: 5px;
     padding-right: 5px;
     font-family: Verdana,Helvetica,sans-serif;
@@ -68,10 +67,5 @@
     z-index: 1;
   }
 
-  .tooltip {
-    padding: 5px;
-    border-radius: 5px;
-    box-shadow: 2px 2px 2px;
-  }
 
 
