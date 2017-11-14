@@ -242,7 +242,7 @@ class Chart extends Component {
     super(props)
     this.state = { 
       clientTime: new Date(),
-      showChart: false,
+      showChart: true,
       chartData: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65],
     }
   }
@@ -270,14 +270,14 @@ class Chart extends Component {
   }
 
    getChartData = () => {
-    const initData = [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65]
+    const initData = this.state.chartData
     const processedData = []
 
     initData.map((value, index) => {
       if (index < this.getCurrentIndex()) {
-        processedData.push({ y: value, color: '#2874cd' })
+        processedData.push({ y: value, color: '#2874cd', livedata: true })
       } else {
-        processedData.push({ y: value, color: '#acacac' })
+        processedData.push({ y: value, color: '#acacac', livedata: false })
       }
     })
     return processedData
@@ -361,23 +361,38 @@ class Chart extends Component {
       hideDelay: 50,
       distance: 10,
       shared: true,
-      backgroundColor: '#87d687',
-      borderColor: '#87d687',
-      borderRadius: 1,
+      borderWidth: 0,
+      // backgroundColor: '#87d687',
+      // borderColor: '#fff',
+      // borderRadius: 1,
+      useHTML: true,
       xDateFormat: '%Y-%m-%d',
       formatter: function () {
         const d = new Date(this.x)
         if (this.y === 0) {
-          return '<GraphIndicator>' + moment(d).utc().format('h:mm a') + ' | = Avg' + '</GraphIndicator>'
+          if (this.points[0].color === '#2874cd') {
+            return '<div style="background-color: #87d687; padding-left: 5px; padding-right: 5px;">' + moment(d).utc().format('h:mm a') + ' | = Avg </div>'
+          } else {
+            return '<div style="background-color: #d5d9e2; padding-left: 5px; padding-right: 5px;">Previous session ' + moment(d).utc().format('h:mm a') + ' | = Avg </div>'
+          }
         } else if (this.y > 0) {
-          return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% > Avg'
+          if (this.points[0].color === '#2874cd') {
+            return '<div style="background-color: #87d687; padding-left: 5px; padding-right: 5px;">' + moment(d).utc().format('h:mm a') + ' | ' + this.y + '% > Avg </div>'
+          } else {
+            return '<div style="background-color: #d5d9e2; padding-left: 5px; padding-right: 5px;"> Previous session ' + moment(d).utc().format('h:mm a') + ' | ' + this.y + '% > Avg </div>'
+          }
+          
         } else if (this.y < 0) {
-          return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
+          if (this.points[0].color === '#2874cd') {
+            return '<div style="background-color: #87d687; padding-left: 5px; padding-right: 5px;">'+moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg </div>'
+          } else {
+            return '<div style="background-color: #d5d9e2; padding-left: 5px; padding-right: 5px;">Previous session ' + moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg </div>'
+          }
         }
 
       },
       shadow: false,
-      padding: 1
+      padding: 0
     },
     series: [{
       data: getChartData()
