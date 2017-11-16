@@ -4,9 +4,7 @@ import './chart.css'
 import moment from 'moment'
 import momentzone from 'moment-timezone'
 import ReactTooltip from 'react-tooltip'
-// import ReactHintFactory from 'react-hint'
 
-// import { Manager, Target, Popper, Arrow } from 'react-popper'
 import cityes from './cityes.json'
 
 const ReactHighcharts = require('react-highcharts')
@@ -30,8 +28,10 @@ const getChartData = () => {
   initData.map((value, index) => {
     if (index < getCurrentIndex()) {
       processedData.push({ y: value, color: '#2874cd'})
+      return null
     } else {
       processedData.push({ y: value, color: '#acacac' })
+      return null
     }
   })
   return processedData
@@ -133,116 +133,16 @@ const LiquidityTitle = styled.div`
   padding-bottom: 3px;
   z-index: 1;
 `
-const GraphIndicator = styled.div`
-  !font-weight: bold;
-  color: white;
-`
-const config = {
-  chart: {
-    type: 'column',
-    height: 160,
-    marginLeft: -7,
-    marginRight: -7,
-    marginTop: 13,
-  },
-  plotOptions: {
-    series: {
-      crisp: false,
-      pointPadding: 0,
-      pointStart: beginTimeOnChart,
-      pointInterval: 600000
-    },
-    column: {
-      borderWidth: 0,
-      maxPointWidth: 7
-    }
-  },
-  credits: {
-    enabled: false
-  },
-  legend: {
-    enabled: false,
-    type: 'category'
-  },
-  xAxis: {
-    crosshair: true,
-    title: {
-      text: null
-    },
-    labels: false,
-    visible: false,
-    type: 'datetime'
-  },
-  yAxis: {
-    labels: {
-      align: 'left',
-      x: 8,
-      y: -3,
-      formatter: function () {
-        if (this.value > 0) {
-          return `+${this.value}%`
-        } else if (this.value === 0) {
-          return '30 Day Avg'
-        }
-        return null
-      }
-    },
-    visible: true,
-    title: {
-      text: null
-    },
-    max: 100,
-    min: -100,
-    tickAmount: 5,
-    tickPositions: [-100, -50, 0, 50, 100]
-  },
-  title: {
-    text: null
-  },
-  tooltip: {
-    crosshairs: true,
-    animation: false,
-    positioner: function (boxWidth, boxHeight, point) {
-      if ((boxWidth/2)+10 > point.plotX) {
-        return { x: 0, y: 140 }
-      } else if (((boxWidth/2) + 15) + point.plotX > this.chart.plotWidth) {
-        return { x: this.chart.plotWidth - boxWidth - 15, y: 140}
-      }
-      return { x: point.plotX-(boxWidth+15)/2, y: 140 };
-    },
-    followPointer: true,
-    hideDelay: 50,
-    distance: 10,
-    shared: true,
-    backgroundColor: '#87d687',
-    borderColor: '#87d687',
-    borderRadius: 1,
-    xDateFormat: '%Y-%m-%d',
-    formatter: function () {
-      const d = new Date(this.x)
-      if (this.y === 0 ) {
-        return '<GraphIndicator>' + moment(d).utc().format('h:mm a') + ' | = Avg' + '</GraphIndicator>'
-      } else if (this.y > 0) {
-        return moment(d).utc().format('h:mm a') + ' | ' + this.y+'% > Avg'
-      } else if (this.y < 0) {
-        return moment(d).utc().format('h:mm a') + ' | ' + this.y + '% < Avg'
-      }
-      
-    },
-    shadow: false,
-    padding: 1
-  },
-  series: [{
-    data: getChartData()
-  }]
-}
-
+// const GraphIndicator = styled.div`
+//   !font-weight: bold;
+//   color: white;
+// `
 class Chart extends Component {
   constructor(props) {
     super(props)
     this.state = { 
       clientTime: new Date(),
-      showChart: true,
+      showChart: false,
       chartData: [-32, -20, -22, -17, -10, -12, -40, -66, -70, -99, -82, -55, -30, -32, -28, -30, -25, -24, -22, -33, -50, -60, -44, -53, -40, -38, -38, -27, -20, -40, -32, -20, -2, -7, -10, -12, -40, -66, -70, -65, -82, -55, -30, -12, -1, 0, 5, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 22, 17, 10, 12, 40, 66, 70, 78, 82, 55, 30, 12, 11, 10, 5, 14, 22, 20, 25, 26, 27, 38, 34, 21, 13, 17, 15, 14, 12, 20, 12, 7, 10, 12, 40, 46, 47, 39, 32, 35, 30, 22, 21, 20, 15, 14, 22, 33, 50, 60, 77, 83, 98, 100, 83, 70, 55, 40, 32, 20, 2, 7, 10, 12, 40, 66, 70, 99, 82, 55, 30, 12, 1, -3, -5, -14, -22, -33, -50, -60, -77, -65],
     }
   }
@@ -276,8 +176,10 @@ class Chart extends Component {
     initData.map((value, index) => {
       if (index < this.getCurrentIndex()) {
         processedData.push({ y: value, color: '#2874cd', livedata: true })
+        return null
       } else {
         processedData.push({ y: value, color: '#acacac', livedata: false })
+        return null
       }
     })
     return processedData
@@ -362,9 +264,6 @@ class Chart extends Component {
       distance: 10,
       shared: true,
       borderWidth: 0,
-      // backgroundColor: '#87d687',
-      // borderColor: '#fff',
-      // borderRadius: 1,
       useHTML: true,
       xDateFormat: '%Y-%m-%d',
       formatter: function () {
@@ -439,21 +338,32 @@ class Chart extends Component {
     const startTime = moment(city.startTime, 'h:m A')
     const midnight = moment('0:00 AM', 'h:m A')
     const difference = moment(midnight).diff(startTime, 'minutes')
-    return (difference < -1319 ? ((Math.abs(difference) - 1320) * 0.0694445) : ((Math.abs(difference) + 120) * 0.0694445))
+    return (difference < -1319 ? 
+      ((Math.abs(difference) - 1320) * 0.0694445) : ((Math.abs(difference) + 120) * 0.0694445))
   }
 
   getTimeDifference = (e) => {
-    const startTime = moment(e.startTime, 'h:m A').add(1,'days')
-    const currentTimeAsString = moment().utc().format("dddd, MMMM Do YYYY, h:mm:ss a")
-    const timeToBegin = moment.duration(Math.abs(moment(startTime.utc()).diff(moment(currentTimeAsString, "dddd, MMMM Do YYYY, h:mm:ss a"))))
-    if (!this.getActiveCity(e)) {
-      return (`Begins in ${timeToBegin.hours()}hr ${timeToBegin.minutes()+1}min (${e.startTime} at your time)`)
-    } else {
-      const finishTime = moment(e.startTime, 'h:m A').add(e.tradingDuration, 'hours')
-      const timeToEnd = moment.duration(Math.abs(moment(finishTime).diff(moment(currentTimeAsString, "dddd, MMMM Do YYYY, h:mm:ss a"))))
-      return (`Ends in ${timeToEnd.hours()}hr ${timeToEnd.minutes()+1}min (${moment(finishTime).format('h:mm A')} at your time)`)
-    }
+    const startTimeUTC = moment.utc(e.startTime, 'h:m A')
+    const endTimeUTC = moment.utc(e.startTime, 'h:m A').add(e.tradingDuration, 'h')
+    const offset = moment().utcOffset()
+    const amountOfTimeToEnd = moment.duration(endTimeUTC.diff(moment.utc()))
+    const amountOfTimeToBegin = moment(startTimeUTC).isBefore(moment().utc()) ? 
+            moment.duration(moment.utc().diff(startTimeUTC.add(1, 'days'))) : 
+            moment.duration(moment.utc().diff(startTimeUTC))
     
+    if (!this.getActiveCity(e)) {
+      const hours = Math.abs(parseInt(amountOfTimeToBegin.asHours()))
+      const minutes = Math.abs(parseInt(amountOfTimeToBegin.asMinutes()) - 1) - hours * 60
+      const beginLocalTime = moment(startTimeUTC).utcOffset(offset).format('h:mm A')
+      return (`Begins in ${hours}hr ${minutes}min
+              (${beginLocalTime} at your time)`)
+    } else {
+      const hours = Math.abs(parseInt(amountOfTimeToEnd.asHours()))
+      const minutes = Math.abs(parseInt(amountOfTimeToEnd.asMinutes()) + 1) - hours * 60
+      const endLocalTime = moment(endTimeUTC).utcOffset(offset).format('h:mm A')
+      return (`Ends in ${hours === 0 ? '' : hours + 'hr'} ${minutes}min
+              (${endLocalTime} at your time)`)
+    }
   }
 
   render() {
