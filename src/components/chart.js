@@ -344,23 +344,26 @@ class Chart extends Component {
 
   getTimeDifference = (e) => {
     const startTimeUTC = moment.utc(e.startTime, 'h:m A')
-    const endTimeUTC = moment.utc(e.startTime, 'h:m A').add(e.tradingDuration, 'h')
+    const endTimeUTC = moment.utc(e.startTime, 'h:m A').add(e.tradingDuration, 'h').day() > moment().utc().day() ?
+                        moment.utc(e.startTime, 'h:m A').add(e.tradingDuration, 'h').subtract(1, 'days') :
+                        moment.utc(e.startTime, 'h:m A').add(e.tradingDuration, 'h')
     const offset = moment().utcOffset()
     const amountOfTimeToEnd = moment.duration(endTimeUTC.diff(moment.utc()))
     const amountOfTimeToBegin = moment(startTimeUTC).isBefore(moment().utc()) ? 
             moment.duration(moment.utc().diff(startTimeUTC.add(1, 'days'))) : 
             moment.duration(moment.utc().diff(startTimeUTC))
-    
+
     if (!this.getActiveCity(e)) {
       const hours = Math.abs(parseInt(amountOfTimeToBegin.asHours()))
       const minutes = Math.abs(parseInt(amountOfTimeToBegin.asMinutes()) - 1) - hours * 60
       const beginLocalTime = moment(startTimeUTC).utcOffset(offset).format('h:mm A')
-      return (`Begins in ${hours}hr ${minutes}min
+      return (`Begins in ${hours === 0 ? '' : hours + 'hr'} ${minutes}min
               (${beginLocalTime} at your time)`)
     } else {
       const hours = Math.abs(parseInt(amountOfTimeToEnd.asHours()))
       const minutes = Math.abs(parseInt(amountOfTimeToEnd.asMinutes()) + 1) - hours * 60
       const endLocalTime = moment(endTimeUTC).utcOffset(offset).format('h:mm A')
+      // console.log(endTimeUTC.format('M D h:mm A'))
       return (`Ends in ${hours === 0 ? '' : hours + 'hr'} ${minutes}min
               (${endLocalTime} at your time)`)
     }
